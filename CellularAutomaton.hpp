@@ -4,7 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
-#include <map>
+#include <array>
 
 #include <assert.h>
 
@@ -41,22 +41,16 @@ class CellularAutomaton
         virtual void onUpdate() = 0;
 
         /**
-         * Sets the fallback color for a states that don't have a defined color
-         * @param color : the default color
-        */
-        inline void setDefaultColor(sf::Color color) { defaultColor = color; }
-        /**
          * Sets the color of a specific state
          * @param state : the state you want to set the color of
          * @param color : the new color of that state
         */
-        void setStateColor(uint8_t state, sf::Color color);
+        void setStateColor(uint8_t state, sf::Color color) { colors.at(state) = color; }
         /**
          * Gets the color of a state
-         * Returns the default color if it doesn't have one
          * @param state : the state to get the color of
         */
-        sf::Color getStateColor(uint8_t state);
+        inline sf::Color getStateColor(uint8_t state) const { return colors.at(state); }
 
         /**
          * Gets a reference to the state at a position
@@ -104,13 +98,8 @@ class CellularAutomaton
         sf::RenderWindow window;
         sf::VertexArray cells;
 
-        std::map<uint8_t, sf::Color> colors;
-        sf::Color defaultColor = sf::Color::Black;
+        std::array<sf::Color, 256> colors;
 };
-
-
-
-
 
 
 
@@ -195,22 +184,4 @@ void CellularAutomaton<WIDTH, HEIGHT, PIXEL_SIZE>::updateVAColors()
         cells[(x + y * WIDTH) * 4 + 2].color = col;
         cells[(x + y * WIDTH) * 4 + 3].color = col;
     }
-}
-
-template <unsigned int WIDTH, unsigned int HEIGHT, unsigned int PIXEL_SIZE>
-void CellularAutomaton<WIDTH, HEIGHT, PIXEL_SIZE>::setStateColor(uint8_t state, sf::Color color)
-{
-    auto it = colors.find(state);
-    if (it != colors.end())
-        colors.erase(it);
-    colors.emplace(state, color);
-}
-
-template <unsigned int WIDTH, unsigned int HEIGHT, unsigned int PIXEL_SIZE>
-sf::Color CellularAutomaton<WIDTH, HEIGHT, PIXEL_SIZE>::getStateColor(uint8_t state)
-{
-    auto it = colors.find(state);
-    if (it == colors.end())
-        return defaultColor;
-    return it->second;
 }
